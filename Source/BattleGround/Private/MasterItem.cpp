@@ -7,9 +7,6 @@
 #include "Components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "../BattleGroundCharacter.h"
-#include "InteractWidget.h"
-#include "UMG/Public/Components/CanvasPanel.h"
-#include "UMG/Public/Components/TextBlock.h"
 
 // Sets default values
 AMasterItem::AMasterItem()
@@ -82,8 +79,8 @@ void AMasterItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	if (ABattleGroundCharacter* Player = Cast<ABattleGroundCharacter>(OtherActor)) {
 		if (Player->IsLocallyControlled()) {
 			OutlineDynamicMat->SetScalarParameterValue(TEXT("Thickness"), 2);
-			Player->InteractWidget->ItemName->SetText(FText::FromString(ItemData.Name));
-			Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
+			//Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
+			Player->SetOverlapItemCount(1);
 		}
 	}
 }
@@ -93,7 +90,8 @@ void AMasterItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	if (ABattleGroundCharacter* Player = Cast<ABattleGroundCharacter>(OtherActor)) {
 		if (Player->IsLocallyControlled()) {
 			OutlineDynamicMat->SetScalarParameterValue(TEXT("Thickness"), 0);
-			Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
+			//Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
+			Player->SetOverlapItemCount(-1);
 		}
 	}
 }

@@ -17,6 +17,9 @@
 #include <Kismet/GameplayStatics.h>
 #include "InteractWidget.h"
 #include "UMG/Public/Components/CanvasPanel.h"
+#include "Camera/PlayerCameraManager.h"
+#include "MasterItem.h"
+#include "UMG/Public/Components/TextBlock.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABattleGroundCharacter
@@ -108,6 +111,15 @@ void ABattleGroundCharacter::BeginPlay()
 	InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
 }
 
+void ABattleGroundCharacter::Tick(float DeltaSeconds)
+{
+	Super::Tick(DeltaSeconds);
+
+	if (GetOverlapItemCount() > 0) {
+		TraceItem();
+	}
+}
+
 //////////////////////////////////////////////////////////////////////////
 // Input
 
@@ -173,4 +185,58 @@ void ABattleGroundCharacter::InputFire()
 	//FTransform firePosition = gunMeshComp->GetSocketTransform(TEXT("testPos"));
 	/*FTransform firePosition = firePos->GetComponentTransform();
 	GetWorld()->SpawnActor<ABullet>(bulletFactory, firePosition);*/
+}
+
+void ABattleGroundCharacter::SetOverlapItemCount(int32 InOverlapItemCnt)
+{
+	OverlapItemCnt = OverlapItemCnt + InOverlapItemCnt;
+	if (OverlapItemCnt > 0) {
+		InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
+	}
+	else {
+		InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
+	}
+}
+
+void ABattleGroundCharacter::TraceItem()
+{
+	FVector2D ViewportSize;
+	if (GEngine && GEngine->GameViewport)
+	{
+		GEngine->GameViewport->GetViewportSize(ViewportSize);
+	}
+
+	FVector2D ViewportCenter(ViewportSize.X / 2.f, ViewportSize.Y / 2.f);
+	FVector ViewportWorldPosition;
+	FVector ViewportWorldDirection;
+
+	bool bScreenToWorld = UGameplayStatics::DeprojectScreenToWorld(
+		UGameplayStatics::GetPlayerController(this, 0),
+		ViewportCenter,
+		ViewportWorldPosition,
+		ViewportWorldDirection);
+
+	FVector Start = ViewportWorldPosition;
+	FVector End = Start + ViewportWorldDirection * TraceMaxDistance;
+	
+	FHitResult OutHit;
+	TArray<AActor*> ActorsToIgnore;
+	
+	bool bHit = UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(),
+														Start, 
+														End, 
+														50, 
+														50, 
+														UEngineTypes::ConvertToTraceType								(ECollisionChannel::ECC_GameTraceChannel7),
+														false,
+														ActorsToIgnore,
+														EDrawDebugTrace::ForOneFrame,
+														OutHit,
+														true);
+
+	if (bHit) {
+		if (AMasterItem* MasterItem = Cast<AMasterItem>(OutHit.GetActor())) {
+			InteractWidget->ItemName->SetText(FText::FromString(MasterItem->ItemData.Name));
+		}
+	}
 }

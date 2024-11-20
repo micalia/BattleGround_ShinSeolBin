@@ -72,6 +72,7 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FItemData ItemData;
 
 	UPROPERTY(EditAnywhere)
@@ -97,6 +98,7 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UMaterialInterface* World3DPassThrough;*/
+
 public:
 UFUNCTION()
 	void OnBeginOverlap(

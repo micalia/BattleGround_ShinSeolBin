@@ -7,7 +7,6 @@
 #include "InputActionValue.h"
 #include "BattleGroundCharacter.generated.h"
 
-
 UCLASS(config=Game)
 class ABattleGroundCharacter : public ACharacter
 {
@@ -62,6 +61,8 @@ protected:
 	// To add mapping context
 	virtual void BeginPlay();
 
+	virtual void Tick(float DeltaSeconds);
+
 public:
 	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
@@ -89,5 +90,16 @@ public:
 
 	UPROPERTY()
 	class UInteractWidget* InteractWidget;
+
+	UPROPERTY(EditAnywhere)
+	float TraceMaxDistance = 500;
+
+	void SetOverlapItemCount(int32 InOverlapItemCnt);
+
+	FORCEINLINE int32 GetOverlapItemCount(){return OverlapItemCnt; }
+private:
+	int32 OverlapItemCnt;
+public:
+	void TraceItem();
 };
 
