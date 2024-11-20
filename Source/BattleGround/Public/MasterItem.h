@@ -12,7 +12,7 @@ enum class EItemEnum : uint8
 {
 	Weapon,
 	Helmet,
-	Consumalbes
+	Consumeables
 };
 
 USTRUCT(BlueprintType)
@@ -33,7 +33,7 @@ public:
 	double Weight;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Category"))
-	TEnumAsByte<EItemEnum> Category;
+	EItemEnum Category;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Amount", MakeStructureDefaultValue="0"))
 	int32 Amount;

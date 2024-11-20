@@ -5,7 +5,10 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "MasterItem.h"
 #include "BattleGroundCharacter.generated.h"
+
+class AMasterItem;
 
 UCLASS(config=Game)
 class ABattleGroundCharacter : public ACharacter
@@ -97,7 +100,29 @@ public:
 	void SetOverlapItemCount(int32 InOverlapItemCnt);
 
 	FORCEINLINE int32 GetOverlapItemCount(){return OverlapItemCnt; }
+
+	UPROPERTY()
+	AMasterItem* tempItem;
+
+	UFUNCTION()
+	void InputFKey();
+
 private:
+	bool ItemToInventory(AMasterItem* InItem);
+
+	bool AddItem(AMasterItem* InItem);
+
+	int32 GetInvenItemWeight();
+
+	int32 MaxWeight = 40;
+
+	int32 FindIndex(AMasterItem* InItem);
+
+	void IncreaseAmount(AMasterItem* InItem, int32 Index);
+
+	bool HasItemOnce(AMasterItem* InItem);
+private:
+	TArray<FItemData> ItemArr;
 	int32 OverlapItemCnt;
 public:
 	void TraceItem();

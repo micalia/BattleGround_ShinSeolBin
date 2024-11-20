@@ -20,6 +20,7 @@
 #include "Camera/PlayerCameraManager.h"
 #include "MasterItem.h"
 #include "UMG/Public/Components/TextBlock.h"
+#include "Kismet/KismetArrayLibrary.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABattleGroundCharacter
@@ -140,6 +141,7 @@ void ABattleGroundCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 
 		//Fire
 		PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ABattleGroundCharacter::InputFire);
+		PlayerInputComponent->BindAction(TEXT("InputF"), IE_Pressed, this, &ABattleGroundCharacter::InputFKey);
 	}
 
 }
@@ -194,8 +196,98 @@ void ABattleGroundCharacter::SetOverlapItemCount(int32 InOverlapItemCnt)
 		InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
 	}
 	else {
+		tempItem = nullptr;
 		InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
 	}
+}
+
+void ABattleGroundCharacter::InputFKey()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputFKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	if (tempItem != nullptr) {
+		if (ItemToInventory(tempItem)) {
+
+		}
+	}
+}
+
+bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
+{
+	int32 InItemWeight = (int32)(InItem->ItemData.Weight * InItem->ItemData.Amount);
+	
+	if ((InItemWeight + GetInvenItemWeight()) <= MaxWeight) {
+		if (InItem->ItemData.IsStackAble) {
+			if (HasItemOnce(InItem)) {
+				IncreaseAmount(InItem, FindIndex(InItem));
+				return true;
+			}
+			else {
+				return AddItem(InItem);
+			}
+		}
+		else {
+			return AddItem(InItem);
+		}
+	}
+	return false;
+}
+
+bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
+{
+	ItemArr.Add(InItem->ItemData);
+	if (InItem->ItemData.Category == EItemEnum::Consumeables) {
+		InItem->Destroy();
+	}
+	else {
+		InItem->Destroy();
+		// TODO: 같은 이름의 아이템이 없으므로 장착
+	}
+	return true;
+}
+
+int32 ABattleGroundCharacter::GetInvenItemWeight()
+{
+	int32 CurrentWeight = 0;
+	for (auto& Item : ItemArr)
+	{
+		float ItemWeight = Item.Weight * Item.Amount;
+		CurrentWeight += ItemWeight;
+	}
+	return CurrentWeight;	 
+}
+
+int32 ABattleGroundCharacter::FindIndex(AMasterItem* InItem)
+{
+	for (int i = 0; i < ItemArr.Num(); i++)
+	{
+		if (ItemArr[i].Name == InItem->ItemData.Name) {
+			return i;
+		}
+	}
+	return -1;
+}
+
+void ABattleGroundCharacter::IncreaseAmount(AMasterItem* InItem, int32 Index)
+{
+	FItemData ItemData;
+	
+	ItemData = ItemArr[Index];
+	ItemData.Amount += InItem->ItemData.Amount;
+
+	ItemArr[Index] = ItemData;
+	InItem->Destroy();
+}
+
+bool ABattleGroundCharacter::HasItemOnce(AMasterItem* InItem)
+{
+	bool bEqual = false;
+	for (auto Item : ItemArr) {
+		if (InItem->ItemData.Name == Item.Name) {
+			bEqual = true;
+			break;
+		}
+	}
+	return bEqual;
 }
 
 void ABattleGroundCharacter::TraceItem()
@@ -236,6 +328,7 @@ void ABattleGroundCharacter::TraceItem()
 
 	if (bHit) {
 		if (AMasterItem* MasterItem = Cast<AMasterItem>(OutHit.GetActor())) {
+			tempItem = MasterItem;
 			InteractWidget->ItemName->SetText(FText::FromString(MasterItem->ItemData.Name));
 		}
 	}
