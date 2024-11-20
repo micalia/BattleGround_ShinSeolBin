@@ -206,28 +206,37 @@ void ABattleGroundCharacter::InputFKey()
 	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputFKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (tempItem != nullptr) {
 		if (ItemToInventory(tempItem)) {
-
+			if (InventoryRef != nullptr) {
+				InventoryRef->BuildInventory();
+				InventoryRef->BuildGroundItems();
+			}
 		}
 	}
 }
 
 bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 {
-	int32 InItemWeight = (int32)(InItem->ItemData.Weight * InItem->ItemData.Amount);
+	if (InItem) {
+		int32 InItemWeight = (int32)(InItem->ItemData.Weight * InItem->ItemData.Amount);
 	
-	if ((InItemWeight + GetInvenItemWeight()) <= MaxWeight) {
-		if (InItem->ItemData.IsStackAble) {
-			if (HasItemOnce(InItem)) {
-				IncreaseAmount(InItem, FindIndex(InItem));
-				return true;
+		if ((InItemWeight + GetInvenItemWeight()) <= MaxWeight) {
+			if (InItem->ItemData.IsStackAble) {
+				if (HasItemOnce(InItem)) {
+					IncreaseAmount(InItem, FindIndex(InItem));
+					return true;
+				}
+				else {
+					return AddItem(InItem);
+				}
 			}
 			else {
 				return AddItem(InItem);
 			}
 		}
-		else {
-			return AddItem(InItem);
-		}
+
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InItem is Null"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	}
 	return false;
 }
@@ -319,7 +328,7 @@ void ABattleGroundCharacter::TraceItem()
 														End, 
 														50, 
 														50, 
-														UEngineTypes::ConvertToTraceType								(ECollisionChannel::ECC_GameTraceChannel7),
+														UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel7),
 														false,
 														ActorsToIgnore,
 														EDrawDebugTrace::ForOneFrame,

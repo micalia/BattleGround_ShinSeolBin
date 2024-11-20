@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "MasterItem.h"
+#include "SB_InventoryMain.h"
 #include "BattleGroundCharacter.generated.h"
 
 class AMasterItem;
@@ -107,8 +108,15 @@ public:
 	UFUNCTION()
 	void InputFKey();
 
-private:
+	UPROPERTY(BlueprintReadWrite)
+	TArray<FItemData> ItemArr;
+
+	UPROPERTY(BlueprintReadWrite)
+	class USB_InventoryMain* InventoryRef;
+	
+	UFUNCTION(BlueprintCallable)
 	bool ItemToInventory(AMasterItem* InItem);
+private:
 
 	bool AddItem(AMasterItem* InItem);
 
@@ -122,7 +130,6 @@ private:
 
 	bool HasItemOnce(AMasterItem* InItem);
 private:
-	TArray<FItemData> ItemArr;
 	int32 OverlapItemCnt;
 public:
 	void TraceItem();
