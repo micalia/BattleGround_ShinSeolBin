@@ -10,7 +10,6 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include <Components/SkeletalMeshComponent.h>
-#include "Bullet.h"
 #include <Components/SceneComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Engine/StaticMesh.h>
@@ -58,37 +57,20 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName); // Attach the camera to the end of the boom and let the boom adjust to match the controller orientation
 	FollowCamera->bUsePawnControlRotation = false; // Camera does not rotate relative to arm
 
-	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
-	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
-
-	// 총 스켈레탈메시 컴포넌트 등록
-	//gunMeshComp = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("GunMeshComp"));
-
-	////// 부모 컴포넌트를 Mesh 컴포넌트로 설정
-	//gunMeshComp->SetupAttachment(GetMesh(), TEXT("gun_fire_button"));
-
-	////// 스켈레탈메시 데이터 로드
-	//ConstructorHelpers::FObjectFinder<USkeletalMesh> TempGunMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/FPS_Weapon_Bundle/Weapons/Meshes/AR4/SK_AR4.SK_AR4'"));
-
-	////// 데이터 로드가 성공했다면, 데이터가 존재한다면
-	//if (TempGunMesh.Succeeded())
-	//{
-	//	UE_LOG(LogTemp,Warning,TEXT("Succeeded2"));
-	//	// 스켈레탈메시 데이터 할당
-	//	gunMeshComp->SetSkeletalMesh(TempGunMesh.Object);
-	//	// 위치는 블루프린트에서 조정한다. 
-	//	gunMeshComp->SetRelativeLocationAndRotation(FVector(-8.286, 4.083, 0.322), FRotator(-0.633	, -13.0365 , 178.53));
-	//}
-
-	//firePos = CreateDefaultSubobject<USceneComponent>(TEXT("FirePos"));
-	//firePos->SetupAttachment(gunMeshComp);
-	//firePos->SetRelativeLocation(FVector(0, 65, 15));
-	//firePos->SetRelativeRotation(FRotator(0, 90, 0));
-
 	static ConstructorHelpers::FClassFinder<UInteractWidget> tempInteractWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Inventory/WB_InteractWidget.WB_InteractWidget_C'"));
 	if (tempInteractWidget.Succeeded()) {
 		InteractWidgetFactory = tempInteractWidget.Class;
 	}
+
+	SM_Helmet = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Helmet"));
+	SM_Helmet->SetupAttachment(GetMesh(), TEXT("headSocket"));
+	SM_Weapon1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon1"));
+	SM_Weapon1->SetupAttachment(GetMesh(), TEXT("SM_Weapon1"));
+	SM_Weapon2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon2"));
+	SM_Weapon2->SetupAttachment(GetMesh(), TEXT("SM_Weapon2"));
+
+	/*SK_Pants = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Pants"));
+	SK_Pants->SetupAttachment(GetMesh());*/
 }
 
 void ABattleGroundCharacter::BeginPlay()
@@ -244,14 +226,32 @@ bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 {
 	ItemArr.Add(InItem->ItemData);
-	if (InItem->ItemData.Category == EItemEnum::Consumeables) {
-		InItem->Destroy();
+	switch(InItem->ItemData.Category){
+		case EItemEnum::Consumeables:
+			break;
+		case EItemEnum::Helmet:
+			PushHelmetToInven(InItem);
+		// TODO: 같은 이름의 아이템이 없으므로 장착
+			break;
+		case EItemEnum::Weapon:
+		// TODO: 같은 이름의 아이템이 없으므로 장착
+			break;
+	}
+	InItem->Destroy();
+
+	return true;
+}
+
+void ABattleGroundCharacter::PushHelmetToInven(AMasterItem* InItem)
+{
+	if (bUseHelmet == false) {
+		bUseHelmet = true;
+		/*GetWorld()->SpawnActor()
+		GetMesh()->GetSocketLocation(TEXT("headSocket"));*/
 	}
 	else {
-		InItem->Destroy();
-		// TODO: 같은 이름의 아이템이 없으므로 장착
+		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> already equip helmet"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	}
-	return true;
 }
 
 int32 ABattleGroundCharacter::GetInvenItemWeight()
@@ -337,8 +337,12 @@ void ABattleGroundCharacter::TraceItem()
 
 	if (bHit) {
 		if (AMasterItem* MasterItem = Cast<AMasterItem>(OutHit.GetActor())) {
+			InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
 			tempItem = MasterItem;
 			InteractWidget->ItemName->SetText(FText::FromString(MasterItem->ItemData.Name));
 		}
+	}
+	else {
+		InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
 	}
 }

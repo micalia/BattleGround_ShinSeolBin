@@ -15,17 +15,28 @@ class BATTLEGROUND_API USB_InventoryMain : public UUserWidget
 	GENERATED_BODY()
 	
 public:
+	USB_InventoryMain(const FObjectInitializer &ObjectInitializer);
+
+	virtual void NativeConstruct();
+
+	/*UPROPERTY()
+	TSubclassOf<class USB_ItemSlotWidget> ItemSlotFactory;*/
+
+public:
 	//void BuildInventory();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void BuildInventory();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	UFUNCTION(BlueprintCallable)
 	void BuildGroundItems();
 
 public:
 	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
 	class UScrollBox* ItemScrollbox;
+
+	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
+	class UScrollBox* GroundItems;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class UBorder* GroundDropBoxPanel;
