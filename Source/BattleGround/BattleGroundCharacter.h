@@ -68,10 +68,16 @@ public:
 	class UStaticMeshComponent* SM_Weapon1;
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* SM_Weapon2;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USkeletalMeshComponent* SK_UpperWear;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USkeletalMeshComponent* SK_LowerWear;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USkeletalMeshComponent* SK_Shoes;
+
 	UPROPERTY(EditAnywhere)
-	class USkeletalMeshComponent* SK_Pants;
-
-
+	TSubclassOf<class UAnimInstance> ManABPClass;
 
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -114,18 +120,30 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class AMasterItem*> MultiItemRefs;
 
+public: // **** 장비 아이템 착용 여부 ****//
+	
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingHelmet = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingUpperWear = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingLowerWear = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingShoes = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingWeapon1 = false;
+	UPROPERTY(BlueprintReadWrite)
+	bool bEquippingWeapon2 = false;
 
+	void ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem);
 private:
 	bool AddItem(AMasterItem* InItem);
-	void PushHelmetToInven(AMasterItem* InItem);
 	int32 GetInvenItemWeight();
 	int32 FindIndex(AMasterItem* InItem);
 	void IncreaseAmount(AMasterItem* InItem, int32 Index);
 	bool HasItemOnce(AMasterItem* InItem);
 
 private:
-	UPROPERTY(BlueprintReadWrite, meta = (AllowPrivateAccess = true))
-	bool bUseHelmet = false;
 
 	int32 MaxWeight = 40;
 	int32 OverlapItemCnt;

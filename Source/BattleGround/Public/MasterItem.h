@@ -51,7 +51,7 @@ public:
 	bool IsEquip;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	FVector StaticMeshScale;
+	FVector StaticMeshScale = FVector(1);
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UStaticMesh* Mesh;

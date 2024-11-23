@@ -20,6 +20,7 @@
 #include "MasterItem.h"
 #include "UMG/Public/Components/TextBlock.h"
 #include "Kismet/KismetArrayLibrary.h"
+#include "Animation/AnimInstance.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABattleGroundCharacter
@@ -62,15 +63,27 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 		InteractWidgetFactory = tempInteractWidget.Class;
 	}
 
+	ConstructorHelpers::FClassFinder<UAnimInstance> tempManABPClass(TEXT("/Script/Engine.AnimBlueprint'/Game/Man/Animation/ABP/ABP_Man.ABP_Man_C'"));
+	if (tempManABPClass.Succeeded()) {
+		ManABPClass = tempManABPClass.Class;
+	}
+
 	SM_Helmet = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Helmet"));
 	SM_Helmet->SetupAttachment(GetMesh(), TEXT("headSocket"));
+
 	SM_Weapon1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon1"));
 	SM_Weapon1->SetupAttachment(GetMesh(), TEXT("SM_Weapon1"));
 	SM_Weapon2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon2"));
 	SM_Weapon2->SetupAttachment(GetMesh(), TEXT("SM_Weapon2"));
 
-	SK_Pants = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Pants"));
-	SK_Pants->SetupAttachment(GetMesh());
+	SK_UpperWear = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_UpperWear"));
+	SK_UpperWear->SetupAttachment(GetMesh());
+
+	SK_LowerWear = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_LowerWear"));
+	SK_LowerWear->SetupAttachment(GetMesh());
+
+	SK_Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Shoes"));
+	SK_Shoes->SetupAttachment(GetMesh());
 }
 
 void ABattleGroundCharacter::BeginPlay()
@@ -223,35 +236,66 @@ bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 	return false;
 }
 
+void ABattleGroundCharacter::ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem)
+{
+	InEquippingVal ? InEquippingVal = false : InEquippingVal = true;
+	InItem.IsEquip = InEquippingVal;
+}
+
 bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 {
-	ItemArr.Add(InItem->ItemData);
 	switch(InItem->ItemData.Category){
 		case EItemEnum::Consumeables:
 			break;
 		case EItemEnum::Helmet:
-			PushHelmetToInven(InItem);
-		// TODO: 같은 이름의 아이템이 없으므로 장착
+		{
+			if (!bEquippingHelmet) {
+				ToggleBoolEquippingItem(bEquippingHelmet, InItem->ItemData);
+				
+				//SM_Helmet
+			}
+		}
 			break;
+		case EItemEnum::UpperWear:
+		{
+			if(!bEquippingUpperWear)
+			{
+				ToggleBoolEquippingItem(bEquippingUpperWear, InItem->ItemData);
+			}
+		}
+		break;
+		case EItemEnum::LowerWear:
+		{
+			if (!bEquippingLowerWear)
+			{
+				ToggleBoolEquippingItem(bEquippingLowerWear, InItem->ItemData);
+			}
+		}
+		case EItemEnum::Shoes:
+		{
+			if (!bEquippingShoes)
+			{
+				ToggleBoolEquippingItem(bEquippingShoes, InItem->ItemData);
+			}
+		}
 		case EItemEnum::Weapon:
-		// TODO: 같은 이름의 아이템이 없으므로 장착
+		{
+			if (!bEquippingWeapon1)
+			{
+				ToggleBoolEquippingItem(bEquippingWeapon1, InItem->ItemData);
+			}
+			else if (!bEquippingWeapon2) {
+				ToggleBoolEquippingItem(bEquippingWeapon2, InItem->ItemData);
+			}
+		}
 			break;
 	}
+	// TODO: 아이템을 인벤토리에 넣는다. 
+
+	ItemArr.Add(InItem->ItemData);
 	InItem->Destroy();
 
 	return true;
-}
-
-void ABattleGroundCharacter::PushHelmetToInven(AMasterItem* InItem)
-{
-	if (bUseHelmet == false) {
-		bUseHelmet = true;
-		/*GetWorld()->SpawnActor()
-		GetMesh()->GetSocketLocation(TEXT("headSocket"));*/
-	}
-	else {
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> already equip helmet"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-	}
 }
 
 int32 ABattleGroundCharacter::GetInvenItemWeight()
