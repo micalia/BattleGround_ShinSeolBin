@@ -12,7 +12,10 @@ enum class EItemEnum : uint8
 {
 	Weapon,
 	Helmet,
-	Consumeables
+	Consumeables,
+	UpperWear,
+	LowerWear,
+	Shoes
 };
 
 USTRUCT(BlueprintType)
@@ -52,6 +55,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class UStaticMesh* Mesh;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class USkeletalMesh* SkeletalMesh;
 };
 
 

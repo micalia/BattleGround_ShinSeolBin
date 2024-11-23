@@ -113,6 +113,8 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class AMasterItem*> MultiItemRefs;
+
+
 private:
 	bool AddItem(AMasterItem* InItem);
 	void PushHelmetToInven(AMasterItem* InItem);
