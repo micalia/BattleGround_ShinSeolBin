@@ -69,8 +69,8 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	SM_Weapon2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon2"));
 	SM_Weapon2->SetupAttachment(GetMesh(), TEXT("SM_Weapon2"));
 
-	/*SK_Pants = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Pants"));
-	SK_Pants->SetupAttachment(GetMesh());*/
+	SK_Pants = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Pants"));
+	SK_Pants->SetupAttachment(GetMesh());
 }
 
 void ABattleGroundCharacter::BeginPlay()

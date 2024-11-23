@@ -66,6 +66,7 @@ void USB_InventoryMain::BuildGroundItems()
 		USB_GroundSlotWidget* GroundSlot = CreateWidget<USB_GroundSlotWidget>(GetWorld(), WidgetClass);
 		GroundSlot->TPCRef = Player;
 		GroundSlot->ItemData = NewItemData;
+		GroundSlot->MasterItemRef = Item;
 		GroundItems->AddChild(Cast<UWidget>(GroundSlot));
 	}
 }
