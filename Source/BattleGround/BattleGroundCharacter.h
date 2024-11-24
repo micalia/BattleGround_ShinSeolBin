@@ -97,6 +97,9 @@ public:
 
 	FTimerHandle PickUpItemDelay;
 	float PickUpItemDelayTime = 0.5f;
+
+	UPROPERTY()
+	class USoundBase* PickUpSound;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FullHp = 50;
@@ -139,7 +142,7 @@ public:
 	class USB_InventoryMain* InventoryRef;
 
 	UFUNCTION(BlueprintCallable)
-	bool ItemToInventory(AMasterItem* InItem);
+	void ItemToInventory(AMasterItem* InItem);
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class AMasterItem*> MultiItemRefs;
@@ -173,9 +176,18 @@ private:
 	void IncreaseAmount(AMasterItem* InItem, int32 Index);
 	bool HasItemOnce(AMasterItem* InItem);
 
-private:
+	UFUNCTION(BlueprintCallable)
+	void DropItem(FItemData InItem);
 
+	int32 RemoveFindIndex(FItemData InItem);
+
+public:
+	UFUNCTION(BlueprintNativeEvent)
+	FVector GetDropItemSpawnPos();
+
+private:
 	int32 MaxWeight = 40;
 	int32 OverlapItemCnt;
+
 };
 

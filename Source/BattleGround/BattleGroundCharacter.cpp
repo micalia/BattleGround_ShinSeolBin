@@ -21,6 +21,7 @@
 #include "UMG/Public/Components/TextBlock.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Animation/AnimInstance.h"
+#include "GunWidget.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABattleGroundCharacter
@@ -66,6 +67,11 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	ConstructorHelpers::FClassFinder<UAnimInstance> tempManABPClass(TEXT("/Script/Engine.AnimBlueprint'/Game/Man/Animation/ABP/ABP_Man.ABP_Man_C'"));
 	if (tempManABPClass.Succeeded()) {
 		ManABPClass = tempManABPClass.Class;
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempPickUpSound(TEXT("/Script/Engine.SoundWave'/Game/Sounds/EquipItem.EquipItem'"));
+	if (tempPickUpSound.Succeeded()) {
+		PickUpSound = tempPickUpSound.Object;
 	}
 
 	SM_Helmet = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Helmet"));
@@ -215,16 +221,7 @@ void ABattleGroundCharacter::InputFKey()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputFKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (tempItem != nullptr) {
-		PlayAnimMontage(AM_PickUp, 1.3, TEXT("PickUp"));
-		GetWorldTimerManager().ClearTimer(PickUpItemDelay);
-		GetWorld()->GetTimerManager().SetTimer(PickUpItemDelay, FTimerDelegate::CreateLambda([&]() {
-			if (ItemToInventory(tempItem)) {
-				if (InventoryRef != nullptr) {
-					InventoryRef->BuildInventory();
-					InventoryRef->BuildGroundItems();
-				}
-			}
-		}), PickUpItemDelayTime, false);
+		ItemToInventory(tempItem);
 	}
 }
 
@@ -252,31 +249,39 @@ void ABattleGroundCharacter::InputXKey()
 	}
 }
 
-bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
+void ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 {
-	if (InItem) {
-		int32 InItemWeight = (int32)(InItem->ItemData.Weight * InItem->ItemData.Amount);
-	
-		if ((InItemWeight + GetInvenItemWeight()) <= MaxWeight) {
-			if (InItem->ItemData.IsStackAble) {
-				if (HasItemOnce(InItem)) {
-					IncreaseAmount(InItem, FindIndex(InItem));
-					return true;
+	PlayAnimMontage(AM_PickUp, 1.3, TEXT("PickUp"));
+
+	GetWorldTimerManager().ClearTimer(PickUpItemDelay);
+	GetWorld()->GetTimerManager().SetTimer(PickUpItemDelay, FTimerDelegate::CreateLambda([&, InItem]() {
+		if (InItem) {
+			int32 InItemWeight = (int32)(InItem->ItemData.Weight * InItem->ItemData.Amount);
+			bool bPushResult = false;
+			if ((InItemWeight + GetInvenItemWeight()) <= MaxWeight) {
+				if (InItem->ItemData.IsStackAble) {
+					if (HasItemOnce(InItem)) {
+						IncreaseAmount(InItem, FindIndex(InItem));
+					}
+					else {
+						bPushResult = AddItem(InItem);
+					}
 				}
 				else {
-					return AddItem(InItem);
+					bPushResult = AddItem(InItem);
 				}
 			}
-			else {
-				return AddItem(InItem);
+
+			if (bPushResult) {
+				if (InventoryRef != nullptr) {
+					InventoryRef->BuildInventory();
+					InventoryRef->BuildGroundItems();
+				}
+
+				UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
 			}
 		}
-
-	}
-	else {
-		GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InItem is Null"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-	}
-	return false;
+	}), PickUpItemDelayTime, false);
 }
 
 void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
@@ -411,17 +416,19 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		}
 		break;
 		case EItemEnum::Weapon:
-		{
+		{ 
 			if (!bEquippingWeapon1)
 			{
 				ToggleBoolEquippingItem(bEquippingWeapon1, InItem->ItemData);
 				SM_Weapon1->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon1->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
+				InventoryRef->GunSlot1->GunData = InItem->ItemData;
 			}
 			else if (!bEquippingWeapon2) {
 				ToggleBoolEquippingItem(bEquippingWeapon2, InItem->ItemData);
 				SM_Weapon2->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon2->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
+				InventoryRef->GunSlot2->GunData = InItem->ItemData;
 			}
 			else {
 				// TODO: π´±‚ ΩΩ∑‘¿Ã ≤À√°Ω¿¥œ¥Ÿ.
@@ -482,6 +489,33 @@ bool ABattleGroundCharacter::HasItemOnce(AMasterItem* InItem)
 	return bEqual;
 }
 
+void ABattleGroundCharacter::DropItem(FItemData InItem)
+{
+	int idx = RemoveFindIndex(InItem);
+	if (InItem.IsStackAble) {
+		ItemArr[idx].Amount -= 1;
+	}
+	if (ItemArr[idx].Amount <= 0) {
+		ItemArr.RemoveAt(idx);
+	}
+	FVector pos = GetDropItemSpawnPos();
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> POS: %s"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), *pos.ToString()), true, FVector2D(1.5f, 1.5f));
+	int a = 1;
+}
+
+int32 ABattleGroundCharacter::RemoveFindIndex(FItemData InItem)
+{
+	int32 RemoveIndex = -1;
+	for (int i = 0; i < ItemArr.Num(); i++)
+	{
+		if (InItem.Name == ItemArr[i].Name) {
+			RemoveIndex = i;
+			break;
+		}
+	}
+	return RemoveIndex;
+}
+
 void ABattleGroundCharacter::TraceItem()
 {
 	FVector2D ViewportSize;
@@ -528,4 +562,8 @@ void ABattleGroundCharacter::TraceItem()
 	else {
 		InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
 	}
+}
+
+FVector ABattleGroundCharacter::GetDropItemSpawnPos_Implementation() {
+	return FVector(0);
 }

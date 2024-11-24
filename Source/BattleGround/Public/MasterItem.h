@@ -47,7 +47,7 @@ public:
 	EItemEnum Category;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Amount", MakeStructureDefaultValue="0"))
-	int32 Amount;
+	int32 Amount = 1;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="IsStackAble", MakeStructureDefaultValue="False"))
 	bool IsStackAble;

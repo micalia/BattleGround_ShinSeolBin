@@ -8,12 +8,7 @@
 void UGunWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
-	GunImage = Cast<UImage>(GetWidgetFromName(TEXT("GunImage")));
-
-	/*ConstructorHelpers::FObjectFinder<UTexture2D> tempDefaultWeaponImg(TEXT("/Script/Engine.Texture2D'/Game/Inventory/GunIcon/NoWeapon.NoWeapon'"));
-	if (tempDefaultWeaponImg.Succeeded()) {
-		GunImage->SetBrushFromTexture(tempDefaultWeaponImg.Object);
-	}*/
+	GunImage = Cast<UImage>(GetWidgetFromName(TEXT("GunImage1")));
 }
 
 void UGunWidget::SetDefaulImage()
@@ -21,7 +16,5 @@ void UGunWidget::SetDefaulImage()
 	if (noWeaponImage) {
 		noWeaponTexture = Cast<UTexture2D>(noWeaponImage->StaticClass());
 		GunImage->SetBrushFromTexture(noWeaponTexture);
-	//	//GunImage->SetBrushFromTexture(noWeaponImage);
-
 	}
 }

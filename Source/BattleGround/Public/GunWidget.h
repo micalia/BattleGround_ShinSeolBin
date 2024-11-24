@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "MasterItem.h"
 #include "GunWidget.generated.h"
 
 /**
@@ -19,6 +20,10 @@ public:
 	UPROPERTY(EditAnywhere, meta=(BindWidget), BlueprintReadWrite)
 	class UImage* GunImage = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FItemData GunData;
+
+public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UTexture2D> noWeaponImage;
 

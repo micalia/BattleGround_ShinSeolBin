@@ -53,6 +53,12 @@ public:
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	class UImage* EmptyHelmet;
 
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class UGunWidget* GunSlot1;
+
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class UGunWidget* GunSlot2;
+
 	//UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
 	//TObjectPtr<class USB_HelmetSlot> GunSlot1;
 	//
