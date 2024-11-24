@@ -72,9 +72,9 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	SM_Helmet->SetupAttachment(GetMesh(), TEXT("headSocket"));
 
 	SM_Weapon1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon1"));
-	SM_Weapon1->SetupAttachment(GetMesh(), TEXT("SM_Weapon1"));
+	SM_Weapon1->SetupAttachment(GetMesh(), TEXT("GunSlot1"));
 	SM_Weapon2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("SM_Weapon2"));
-	SM_Weapon2->SetupAttachment(GetMesh(), TEXT("SM_Weapon2"));
+	SM_Weapon2->SetupAttachment(GetMesh(), TEXT("GunSlot2"));
 
 	SK_UpperWear = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_UpperWear"));
 	SK_UpperWear->SetupAttachment(GetMesh());
@@ -84,6 +84,13 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 
 	SK_Shoes = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("SK_Shoes"));
 	SK_Shoes->SetupAttachment(GetMesh());
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempAM_DrawGun(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Player/Montages/AM_DrawGun.AM_DrawGun'"));
+	if (tempAM_DrawGun.Succeeded())
+	{
+		AM_DrawGun = tempAM_DrawGun.Object;
+	}
+	
 }
 
 void ABattleGroundCharacter::BeginPlay()
@@ -137,6 +144,9 @@ void ABattleGroundCharacter::SetupPlayerInputComponent(class UInputComponent* Pl
 		//Fire
 		PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &ABattleGroundCharacter::InputFire);
 		PlayerInputComponent->BindAction(TEXT("InputF"), IE_Pressed, this, &ABattleGroundCharacter::InputFKey);
+		PlayerInputComponent->BindAction(TEXT("Input1"), IE_Pressed, this, &ABattleGroundCharacter::Input1Key);
+		PlayerInputComponent->BindAction(TEXT("Input2"), IE_Pressed, this, &ABattleGroundCharacter::Input2Key);
+		PlayerInputComponent->BindAction(TEXT("InputX"), IE_Pressed, this, &ABattleGroundCharacter::InputXKey);
 	}
 
 }
@@ -209,6 +219,30 @@ void ABattleGroundCharacter::InputFKey()
 	}
 }
 
+void ABattleGroundCharacter::Input1Key()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Input1Key"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	if (bEquippingWeapon1) {
+		ChangeAttackState(EAttackState::Weapon1);
+	}
+}
+
+void ABattleGroundCharacter::Input2Key()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Input2Key"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	if (bEquippingWeapon2) {
+		ChangeAttackState(EAttackState::Weapon2);
+	}
+}
+
+void ABattleGroundCharacter::InputXKey()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputXKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	if (bEquippingWeapon1 || bEquippingWeapon2) {
+		ChangeAttackState(EAttackState::NoWeapon);
+	}
+}
+
 bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 {
 	if (InItem) {
@@ -236,6 +270,74 @@ bool ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 	return false;
 }
 
+void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> This iS Call?"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
+	int a = 1;
+	switch (InAttackState) {
+	case EAttackState::NoWeapon: 
+		{
+			if (CurrAttackState == EAttackState::Weapon1) {
+				FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+				SM_Weapon1->AttachToComponent(GetMesh(), AttachRule, TEXT("LeftHandSocket"));
+				 PlayAnimMontage(AM_DrawGun, 1, TEXT("Draw1Slot"));
+			
+				GetWorldTimerManager().ClearTimer(DrawGunDelay);
+				GetWorld()->GetTimerManager().SetTimer(DrawGunDelay, FTimerDelegate::CreateLambda([&]() {
+					FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+					SM_Weapon1->AttachToComponent(GetMesh(), AttachRule, TEXT("GunSlot1"));
+				}), DrawGunDelayTime, false);
+			}else if (CurrAttackState == EAttackState::Weapon2) {
+				PlayAnimMontage(AM_DrawGun, 1, TEXT("Draw2Slot"));
+				
+				GetWorldTimerManager().ClearTimer(DrawGunDelay);
+				GetWorld()->GetTimerManager().SetTimer(DrawGunDelay, FTimerDelegate::CreateLambda([&]() {
+					FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+					SM_Weapon2->AttachToComponent(GetMesh(), AttachRule, TEXT("GunSlot2"));
+				}), DrawGunDelayTime, false);
+			}
+
+			IsArmed = false;
+			CurrAttackState = EAttackState::NoWeapon;
+		}
+		break;
+		case EAttackState::Weapon1:
+		{
+			PlayAnimMontage(AM_DrawGun, 1, TEXT("Draw1Slot"));
+
+			GetWorldTimerManager().ClearTimer(DrawGunDelay);
+			GetWorld()->GetTimerManager().SetTimer(DrawGunDelay, FTimerDelegate::CreateLambda([&]() {
+				if (CurrAttackState == EAttackState::Weapon2) {
+					FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+					SM_Weapon2->AttachToComponent(GetMesh(), AttachRule, TEXT("GunSlot2"));
+				}
+				FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+				SM_Weapon1->AttachToComponent(GetMesh(), AttachRule, TEXT("HoldGunSocket"));
+				IsArmed = true;
+				CurrAttackState = EAttackState::Weapon1;
+			}), DrawGunDelayTime, false);
+		}
+		break;
+		case EAttackState::Weapon2:
+		{
+			PlayAnimMontage(AM_DrawGun, 1, TEXT("Draw2Slot"));
+
+			GetWorldTimerManager().ClearTimer(DrawGunDelay);
+			GetWorld()->GetTimerManager().SetTimer(DrawGunDelay, FTimerDelegate::CreateLambda([&]() {
+				if (CurrAttackState == EAttackState::Weapon1) {
+					FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+					SM_Weapon1->AttachToComponent(GetMesh(), AttachRule, TEXT("GunSlot1"));
+				}
+				FAttachmentTransformRules AttachRule = FAttachmentTransformRules::SnapToTargetNotIncludingScale;
+				SM_Weapon2->AttachToComponent(GetMesh(), AttachRule, TEXT("HoldGunSocket"));
+				IsArmed = true;
+				CurrAttackState = EAttackState::Weapon2;
+			}), DrawGunDelayTime, false);
+		}
+		break;
+	}
+}
+
 void ABattleGroundCharacter::ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem)
 {
 	InEquippingVal ? InEquippingVal = false : InEquippingVal = true;
@@ -251,8 +353,12 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		{
 			if (!bEquippingHelmet) {
 				ToggleBoolEquippingItem(bEquippingHelmet, InItem->ItemData);
-				
-				//SM_Helmet
+				SM_Helmet->SetStaticMesh(InItem->ItemData.Mesh);
+				SM_Helmet->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
+			}
+			else {
+				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				return false;
 			}
 		}
 			break;
@@ -261,6 +367,11 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			if(!bEquippingUpperWear)
 			{
 				ToggleBoolEquippingItem(bEquippingUpperWear, InItem->ItemData);
+				SK_UpperWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+			}
+			else {
+				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				return false;
 			}
 		}
 		break;
@@ -269,28 +380,47 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			if (!bEquippingLowerWear)
 			{
 				ToggleBoolEquippingItem(bEquippingLowerWear, InItem->ItemData);
+				SK_LowerWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+			}
+			else {
+				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				return false;
 			}
 		}
+		break;
 		case EItemEnum::Shoes:
 		{
 			if (!bEquippingShoes)
 			{
 				ToggleBoolEquippingItem(bEquippingShoes, InItem->ItemData);
+				SK_Shoes->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+			}
+			else {
+				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				return false;
 			}
 		}
+		break;
 		case EItemEnum::Weapon:
 		{
 			if (!bEquippingWeapon1)
 			{
 				ToggleBoolEquippingItem(bEquippingWeapon1, InItem->ItemData);
+				SM_Weapon1->SetStaticMesh(InItem->ItemData.Mesh);
+				SM_Weapon1->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 			}
 			else if (!bEquippingWeapon2) {
 				ToggleBoolEquippingItem(bEquippingWeapon2, InItem->ItemData);
+				SM_Weapon2->SetStaticMesh(InItem->ItemData.Mesh);
+				SM_Weapon2->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
+			}
+			else {
+				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				return false;
 			}
 		}
-			break;
+		break;
 	}
-	// TODO: ¾ÆÀÌÅÛÀ» ÀÎº¥Åä¸®¿¡ ³Ö´Â´Ù. 
 
 	ItemArr.Add(InItem->ItemData);
 	InItem->Destroy();

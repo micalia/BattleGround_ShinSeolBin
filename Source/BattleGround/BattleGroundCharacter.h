@@ -9,6 +9,14 @@
 #include "SB_InventoryMain.h"
 #include "BattleGroundCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class EAttackState : uint8
+{
+	NoWeapon,
+	Weapon1,
+	Weapon2
+};
+
 class AMasterItem;
 
 UCLASS(config = Game)
@@ -79,6 +87,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UAnimInstance> ManABPClass;
 
+	UPROPERTY()
+	class UAnimMontage* AM_DrawGun;
+
+	FTimerHandle DrawGunDelay;
+	float DrawGunDelayTime = 0.4f;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FullHp = 50;
@@ -107,6 +120,12 @@ public:
 
 	UFUNCTION()
 	void InputFKey();
+	UFUNCTION()
+	void Input1Key();
+	UFUNCTION()
+	void Input2Key();
+	UFUNCTION()
+	void InputXKey();
 
 	UPROPERTY(BlueprintReadWrite)
 	TArray<FItemData> ItemArr;
@@ -135,7 +154,13 @@ public: // **** 장비 아이템 착용 여부 ****//
 	UPROPERTY(BlueprintReadWrite)
 	bool bEquippingWeapon2 = false;
 
+	EAttackState CurrAttackState = EAttackState::NoWeapon;
+	void ChangeAttackState(EAttackState InAttackState);
+
 	void ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem);
+
+	UPROPERTY(BlueprintReadWrite)
+	bool IsArmed = false;
 private:
 	bool AddItem(AMasterItem* InItem);
 	int32 GetInvenItemWeight();

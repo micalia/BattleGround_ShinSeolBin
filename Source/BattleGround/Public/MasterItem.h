@@ -18,6 +18,14 @@ enum class EItemEnum : uint8
 	Shoes
 };
 
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	NotWeapon,
+	Normal,
+	Sniper
+};
+
 USTRUCT(BlueprintType)
 struct FItemData : public FTableRowBase
 {
@@ -58,6 +66,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class USkeletalMesh* SkeletalMesh;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	EWeaponType WeaponType = EWeaponType::NotWeapon;
 };
 
 
