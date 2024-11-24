@@ -90,7 +90,12 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	{
 		AM_DrawGun = tempAM_DrawGun.Object;
 	}
-	
+
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> tempAM_PickUp(TEXT("/Script/Engine.AnimMontage'/Game/Animations/Player/Montages/AM_PickUp.AM_PickUp'"));
+	if (tempAM_PickUp.Succeeded())
+	{
+		AM_PickUp = tempAM_PickUp.Object;
+	}
 }
 
 void ABattleGroundCharacter::BeginPlay()
@@ -210,12 +215,16 @@ void ABattleGroundCharacter::InputFKey()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputFKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (tempItem != nullptr) {
-		if (ItemToInventory(tempItem)) {
-			if (InventoryRef != nullptr) {
-				InventoryRef->BuildInventory();
-				InventoryRef->BuildGroundItems();
+		PlayAnimMontage(AM_PickUp, 1.3, TEXT("PickUp"));
+		GetWorldTimerManager().ClearTimer(PickUpItemDelay);
+		GetWorld()->GetTimerManager().SetTimer(PickUpItemDelay, FTimerDelegate::CreateLambda([&]() {
+			if (ItemToInventory(tempItem)) {
+				if (InventoryRef != nullptr) {
+					InventoryRef->BuildInventory();
+					InventoryRef->BuildGroundItems();
+				}
 			}
-		}
+		}), PickUpItemDelayTime, false);
 	}
 }
 

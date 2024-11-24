@@ -89,9 +89,14 @@ public:
 
 	UPROPERTY()
 	class UAnimMontage* AM_DrawGun;
+	UPROPERTY()
+	class UAnimMontage* AM_PickUp;
 
 	FTimerHandle DrawGunDelay;
 	float DrawGunDelayTime = 0.4f;
+
+	FTimerHandle PickUpItemDelay;
+	float PickUpItemDelayTime = 0.5f;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FullHp = 50;
