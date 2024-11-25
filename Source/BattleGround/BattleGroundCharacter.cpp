@@ -21,7 +21,7 @@
 #include "UMG/Public/Components/TextBlock.h"
 #include "Kismet/KismetArrayLibrary.h"
 #include "Animation/AnimInstance.h"
-#include "GunWidget.h"
+#include "SB_GunSlotWidget.h"
 
 //////////////////////////////////////////////////////////////////////////
 // ABattleGroundCharacter
@@ -101,6 +101,11 @@ ABattleGroundCharacter::ABattleGroundCharacter()
 	if (tempAM_PickUp.Succeeded())
 	{
 		AM_PickUp = tempAM_PickUp.Object;
+	}
+
+	static ConstructorHelpers::FClassFinder<AMasterItem> tempMasterItemFactory(TEXT("/Script/Engine.Blueprint'/Game/Inventory/BP_MasterItem.BP_MasterItem_C'"));
+	if (tempMasterItemFactory.Succeeded()) {
+		MasterItemFactory = tempMasterItemFactory.Class;
 	}
 }
 
@@ -352,10 +357,9 @@ void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
 	}
 }
 
-void ABattleGroundCharacter::ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem)
+void ABattleGroundCharacter::ToggleBoolEquippingItem(bool& InEquippingVal)
 {
 	InEquippingVal ? InEquippingVal = false : InEquippingVal = true;
-	InItem.IsEquip = InEquippingVal;
 }
 
 bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
@@ -366,7 +370,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		case EItemEnum::Helmet:
 		{
 			if (!bEquippingHelmet) {
-				ToggleBoolEquippingItem(bEquippingHelmet, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingHelmet);
 				SM_Helmet->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Helmet->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 			}
@@ -380,7 +384,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		{
 			if(!bEquippingUpperWear)
 			{
-				ToggleBoolEquippingItem(bEquippingUpperWear, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingUpperWear);
 				SK_UpperWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
 			}
 			else {
@@ -393,7 +397,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		{
 			if (!bEquippingLowerWear)
 			{
-				ToggleBoolEquippingItem(bEquippingLowerWear, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingLowerWear);
 				SK_LowerWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
 			}
 			else {
@@ -406,7 +410,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		{
 			if (!bEquippingShoes)
 			{
-				ToggleBoolEquippingItem(bEquippingShoes, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingShoes);
 				SK_Shoes->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
 			}
 			else {
@@ -419,16 +423,16 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 		{ 
 			if (!bEquippingWeapon1)
 			{
-				ToggleBoolEquippingItem(bEquippingWeapon1, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingWeapon1);
 				SM_Weapon1->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon1->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
-				InventoryRef->GunSlot1->GunData = InItem->ItemData;
+				InventoryRef->GunSlot1->ItemData = InItem->ItemData;
 			}
 			else if (!bEquippingWeapon2) {
-				ToggleBoolEquippingItem(bEquippingWeapon2, InItem->ItemData);
+				ToggleBoolEquippingItem(bEquippingWeapon2);
 				SM_Weapon2->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon2->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
-				InventoryRef->GunSlot2->GunData = InItem->ItemData;
+				InventoryRef->GunSlot2->ItemData = InItem->ItemData;
 			}
 			else {
 				// TODO: π´±‚ ΩΩ∑‘¿Ã ≤À√°Ω¿¥œ¥Ÿ.
@@ -489,18 +493,68 @@ bool ABattleGroundCharacter::HasItemOnce(AMasterItem* InItem)
 	return bEqual;
 }
 
-void ABattleGroundCharacter::DropItem(FItemData InItem)
+void ABattleGroundCharacter::DropItem(FItemData InItem, int32 InGunSlotIdx)
 {
 	int idx = RemoveFindIndex(InItem);
 	if (InItem.IsStackAble) {
 		ItemArr[idx].Amount -= 1;
+		if (ItemArr[idx].Amount <= 0) {
+			ItemArr.RemoveAt(idx);
+		}
 	}
-	if (ItemArr[idx].Amount <= 0) {
+	else {
 		ItemArr.RemoveAt(idx);
 	}
-	FVector pos = GetDropItemSpawnPos();
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> POS: %s"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S")), *pos.ToString()), true, FVector2D(1.5f, 1.5f));
-	int a = 1;
+
+	switch (InItem.Category)
+	{
+		case EItemEnum::Helmet:
+		break;
+		case EItemEnum::UpperWear:
+		break;
+		case EItemEnum::LowerWear:
+		break;
+		case EItemEnum::Shoes:
+		break;
+		case EItemEnum::Weapon:
+			if (InGunSlotIdx == 1) {
+				InventoryRef->GunSlot1->NotEquipState(InGunSlotIdx);
+				ToggleBoolEquippingItem(bEquippingWeapon1);
+				if (CurrAttackState == EAttackState::Weapon1) {
+					ChangeAttackState(EAttackState::NoWeapon);
+				}
+				SM_Weapon1->SetStaticMesh(nullptr);
+			}
+			else if (InGunSlotIdx == 2) {
+				InventoryRef->GunSlot2->NotEquipState(InGunSlotIdx);
+				ToggleBoolEquippingItem(bEquippingWeapon2);
+				if (CurrAttackState == EAttackState::Weapon2) {
+					ChangeAttackState(EAttackState::NoWeapon);
+				}
+				SM_Weapon2->SetStaticMesh(nullptr);
+			}
+		break;
+	}
+
+	FVector SpawnPos = GetDropItemSpawnPos();
+
+	FActorSpawnParameters spawnConfig;
+	spawnConfig.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	spawnConfig.TransformScaleMethod = ESpawnActorScaleMethod::MultiplyWithRoot;
+	spawnConfig.Owner = this;
+	auto doFunc = [=](AActor* ObjectToModify)
+		{
+			AMasterItem* ObjModify = Cast<AMasterItem>(ObjectToModify);
+			if (ObjModify)
+			{
+				ObjModify->ItemData = InItem;
+			}
+		};
+
+	spawnConfig.CustomPreSpawnInitalization = doFunc;
+
+	AMasterItem* MasterItem = GetWorld()->SpawnActor<AMasterItem>(MasterItemFactory, SpawnPos, GetActorRotation(), spawnConfig);
+
 }
 
 int32 ABattleGroundCharacter::RemoveFindIndex(FItemData InItem)

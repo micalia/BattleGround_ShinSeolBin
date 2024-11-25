@@ -19,11 +19,7 @@ public:
 
 	virtual void NativeConstruct();
 
-	/*UPROPERTY()
-	TSubclassOf<class USB_ItemSlotWidget> ItemSlotFactory;*/
-
 public:
-	//void BuildInventory();
 
 	UFUNCTION(BlueprintCallable)
 	void BuildInventory();
@@ -48,23 +44,21 @@ public:
 	class UBorder* CancelBoxPanel;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	class USB_HelmetSlot* UseHelmetSlot;
+	class USB_EquipSlotWidget* EquipHelmetSlot;
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USB_EquipSlotWidget* EquipUpperWearSlot;
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USB_EquipSlotWidget* EquipLowerWearSlot;
+	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
+	class USB_EquipSlotWidget* EquipShoesSlot;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	class UImage* EmptyHelmet;
+	class USB_GunSlotWidget* GunSlot1;
 
 	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	class UGunWidget* GunSlot1;
-
-	UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	class UGunWidget* GunSlot2;
-
-	//UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	//TObjectPtr<class USB_HelmetSlot> GunSlot1;
-	//
-	//UPROPERTY(meta = (BindWidget), BlueprintReadWrite)
-	//TObjectPtr<class USB_HelmetSlot> GunSlot2;
+	class USB_GunSlotWidget* GunSlot2;
 
 	class ABattleGroundCharacter* Player;
+	
 
 };

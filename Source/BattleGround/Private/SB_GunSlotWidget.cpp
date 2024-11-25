@@ -1,20 +1,31 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "GunWidget.h"
+#include "SB_GunSlotWidget.h"
 #include "Components/Image.h"
 #include "Engine/Texture2D.h"
+#include "UMG/Public/Components/TextBlock.h"
 
-void UGunWidget::NativeConstruct()
+void USB_GunSlotWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 	GunImage = Cast<UImage>(GetWidgetFromName(TEXT("GunImage1")));
 }
 
-void UGunWidget::SetDefaulImage()
+void USB_GunSlotWidget::SetDefaulImage()
 { 
 	if (noWeaponImage) {
 		noWeaponTexture = Cast<UTexture2D>(noWeaponImage->StaticClass());
 		GunImage->SetBrushFromTexture(noWeaponTexture);
 	}
 }
+
+//void USB_GunSlotWidget::NotEquipState()
+//{
+//	/*FSlateBrush NoneBlush;
+//	GunImage->SetBrush(NoneBlush);*/
+//	GunName->SetText(FText::FromString(TEXT("")));
+//	
+//	FItemData NoneItem;
+//	ItemData = NoneItem;
+//}

@@ -5,24 +5,29 @@
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "MasterItem.h"
-#include "GunWidget.generated.h"
-
+#include "SB_EquipSlotWidget.h"
+#include "SB_GunSlotWidget.generated.h"
 /**
  * 
  */
 UCLASS()
-class BATTLEGROUND_API UGunWidget : public UUserWidget
+class BATTLEGROUND_API USB_GunSlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
 public:
 	virtual void NativeConstruct() override;
+
 	UPROPERTY(EditAnywhere, meta=(BindWidget), BlueprintReadWrite)
 	class UImage* GunImage = nullptr;
+	UPROPERTY(EditAnywhere, meta = (BindWidget), BlueprintReadWrite)
+	class UTextBlock* GunName;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FItemData GunData;
+	FItemData ItemData;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	int SlotNum = 0;
 public:
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<class UTexture2D> noWeaponImage;
@@ -32,4 +37,8 @@ public:
 
 	UPROPERTY()
 	class UTexture2D* noWeaponTexture;
+	
+public:
+	UFUNCTION(BlueprintImplementableEvent)
+	void NotEquipState(int32 InGunSlotIndex);
 };

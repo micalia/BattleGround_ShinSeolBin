@@ -7,6 +7,7 @@
 #include "../BattleGroundCharacter.h"
 #include "SB_ItemSlotWidget.h"
 #include "SB_GroundSlotWidget.h"
+#include "SB_GunSlotWidget.h"
 #include "Kismet/GameplayStatics.h"
 
 USB_InventoryMain::USB_InventoryMain(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
@@ -35,11 +36,11 @@ void USB_InventoryMain::BuildInventory()
 		switch (Player->ItemArr[i].Category)
 		{
 		case EItemEnum::Weapon:
-			break;
+			break; 
 		case EItemEnum::Helmet:
-			UseHelmetSlot->ItemData = Player->ItemArr[i];
-			UseHelmetSlot->TPRef = Player;
-			UseHelmetSlot->Index = i;
+			EquipHelmetSlot->ItemData = Player->ItemArr[i];
+			EquipHelmetSlot->TPRef = Player;
+			EquipHelmetSlot->Index = i;
 			break;
 		case EItemEnum::Consumeables:
 			UClass* WidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UMG/ItemSlot.ItemSlot_C'"));

@@ -100,6 +100,9 @@ public:
 
 	UPROPERTY()
 	class USoundBase* PickUpSound;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AMasterItem> MasterItemFactory;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	float FullHp = 50;
@@ -165,7 +168,7 @@ public: // **** 장비 아이템 착용 여부 ****//
 	EAttackState CurrAttackState = EAttackState::NoWeapon;
 	void ChangeAttackState(EAttackState InAttackState);
 
-	void ToggleBoolEquippingItem(bool& InEquippingVal, FItemData& InItem);
+	void ToggleBoolEquippingItem(bool& InEquippingVal);
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsArmed = false;
@@ -177,7 +180,7 @@ private:
 	bool HasItemOnce(AMasterItem* InItem);
 
 	UFUNCTION(BlueprintCallable)
-	void DropItem(FItemData InItem);
+	void DropItem(FItemData InItem, int32 InGunSlotIdx = 0);
 
 	int32 RemoveFindIndex(FItemData InItem);
 
