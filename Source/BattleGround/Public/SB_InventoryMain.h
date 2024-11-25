@@ -60,5 +60,6 @@ public:
 
 	class ABattleGroundCharacter* Player;
 	
-
+	UPROPERTY(BlueprintReadWrite)
+	class UUserWidget* ItemSlotHover;
 };

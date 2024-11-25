@@ -33,12 +33,13 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	class AMasterItem* MasterItemRef;
 
-	UPROPERTY(meta=(BindWidget))
+	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
 	class UImage* EquipItemImg;
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 Index;
 
 public:
+	UFUNCTION(BlueprintImplementableEvent)
 	void NotEquipState();
 };

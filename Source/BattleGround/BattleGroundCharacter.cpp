@@ -267,6 +267,8 @@ void ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 				if (InItem->ItemData.IsStackAble) {
 					if (HasItemOnce(InItem)) {
 						IncreaseAmount(InItem, FindIndex(InItem));
+						bPushResult = true;
+						InItem->Destroy();
 					}
 					else {
 						bPushResult = AddItem(InItem);
@@ -279,6 +281,7 @@ void ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 
 			if (bPushResult) {
 				if (InventoryRef != nullptr) {
+					MultiTrace();
 					InventoryRef->BuildInventory();
 					InventoryRef->BuildGroundItems();
 				}
@@ -373,6 +376,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				ToggleBoolEquippingItem(bEquippingHelmet);
 				SM_Helmet->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Helmet->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
+				InventoryRef->EquipHelmetSlot->ItemData = InItem->ItemData;
 			}
 			else {
 				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
@@ -386,6 +390,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			{
 				ToggleBoolEquippingItem(bEquippingUpperWear);
 				SK_UpperWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+				InventoryRef->EquipUpperWearSlot->ItemData = InItem->ItemData;
 			}
 			else {
 				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
@@ -399,6 +404,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			{
 				ToggleBoolEquippingItem(bEquippingLowerWear);
 				SK_LowerWear->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+				InventoryRef->EquipLowerWearSlot->ItemData = InItem->ItemData;
 			}
 			else {
 				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
@@ -412,6 +418,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			{
 				ToggleBoolEquippingItem(bEquippingShoes);
 				SK_Shoes->SetSkeletalMeshAsset(InItem->ItemData.SkeletalMesh);
+				InventoryRef->EquipShoesSlot->ItemData = InItem->ItemData;
 			}
 			else {
 				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
@@ -427,12 +434,14 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				SM_Weapon1->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon1->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 				InventoryRef->GunSlot1->ItemData = InItem->ItemData;
+				InventoryRef->GunSlot1->GunName->SetText(FText::FromString(InItem->ItemData.Name));
 			}
 			else if (!bEquippingWeapon2) {
 				ToggleBoolEquippingItem(bEquippingWeapon2);
 				SM_Weapon2->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon2->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 				InventoryRef->GunSlot2->ItemData = InItem->ItemData;
+				InventoryRef->GunSlot2->GunName->SetText(FText::FromString(InItem->ItemData.Name));
 			}
 			else {
 				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
@@ -475,7 +484,7 @@ void ABattleGroundCharacter::IncreaseAmount(AMasterItem* InItem, int32 Index)
 	FItemData ItemData;
 	
 	ItemData = ItemArr[Index];
-	ItemData.Amount += InItem->ItemData.Amount;
+	ItemData.Amount += 1;
 
 	ItemArr[Index] = ItemData;
 	InItem->Destroy();
@@ -483,14 +492,17 @@ void ABattleGroundCharacter::IncreaseAmount(AMasterItem* InItem, int32 Index)
 
 bool ABattleGroundCharacter::HasItemOnce(AMasterItem* InItem)
 {
-	bool bEqual = false;
-	for (auto Item : ItemArr) {
-		if (InItem->ItemData.Name == Item.Name) {
-			bEqual = true;
-			break;
+	if (InItem) {
+		bool bEqual = false;
+		for (auto Item : ItemArr) {
+			if (InItem->ItemData.Name == Item.Name) {
+				bEqual = true;
+				break;
+			}
 		}
+		return bEqual;
 	}
-	return bEqual;
+	return false;
 }
 
 void ABattleGroundCharacter::DropItem(FItemData InItem, int32 InGunSlotIdx)
@@ -509,12 +521,24 @@ void ABattleGroundCharacter::DropItem(FItemData InItem, int32 InGunSlotIdx)
 	switch (InItem.Category)
 	{
 		case EItemEnum::Helmet:
-		break;
+			InventoryRef->EquipHelmetSlot->NotEquipState();
+			SM_Helmet->SetStaticMesh(nullptr);
+			ToggleBoolEquippingItem(bEquippingHelmet);
+			break;
 		case EItemEnum::UpperWear:
-		break;
+			InventoryRef->EquipUpperWearSlot->NotEquipState();
+			SK_UpperWear->SetSkeletalMesh(nullptr);
+			ToggleBoolEquippingItem(bEquippingUpperWear);
+			break;
 		case EItemEnum::LowerWear:
-		break;
+			InventoryRef->EquipLowerWearSlot->NotEquipState();
+			SK_LowerWear->SetSkeletalMesh(nullptr);
+			ToggleBoolEquippingItem(bEquippingLowerWear);
+			break;
 		case EItemEnum::Shoes:
+			InventoryRef->EquipShoesSlot->NotEquipState();
+			SK_Shoes->SetSkeletalMesh(nullptr);
+			ToggleBoolEquippingItem(bEquippingShoes);
 		break;
 		case EItemEnum::Weapon:
 			if (InGunSlotIdx == 1) {
@@ -548,6 +572,7 @@ void ABattleGroundCharacter::DropItem(FItemData InItem, int32 InGunSlotIdx)
 			if (ObjModify)
 			{
 				ObjModify->ItemData = InItem;
+				ObjModify->ItemData.Amount = 1;
 			}
 		};
 
@@ -615,6 +640,7 @@ void ABattleGroundCharacter::TraceItem()
 	}
 	else {
 		InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
+		tempItem = nullptr;
 	}
 }
 

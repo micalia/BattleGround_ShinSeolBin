@@ -188,6 +188,9 @@ public:
 	UFUNCTION(BlueprintNativeEvent)
 	FVector GetDropItemSpawnPos();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void MultiTrace();
+
 private:
 	int32 MaxWeight = 40;
 	int32 OverlapItemCnt;
