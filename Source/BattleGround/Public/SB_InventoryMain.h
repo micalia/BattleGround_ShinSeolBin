@@ -27,6 +27,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BuildGroundItems();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetCurrWeightText();
+
 public:
 	UPROPERTY(meta=(BindWidget), BlueprintReadWrite)
 	class UScrollBox* ItemScrollbox;

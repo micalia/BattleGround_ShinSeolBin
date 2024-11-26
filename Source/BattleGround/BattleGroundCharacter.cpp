@@ -224,7 +224,6 @@ void ABattleGroundCharacter::SetOverlapItemCount(int32 InOverlapItemCnt)
 
 void ABattleGroundCharacter::InputFKey()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputFKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (tempItem != nullptr) {
 		ItemToInventory(tempItem);
 	}
@@ -232,7 +231,6 @@ void ABattleGroundCharacter::InputFKey()
 
 void ABattleGroundCharacter::Input1Key()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Input1Key"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (bEquippingWeapon1) {
 		ChangeAttackState(EAttackState::Weapon1);
 	}
@@ -240,7 +238,6 @@ void ABattleGroundCharacter::Input1Key()
 
 void ABattleGroundCharacter::Input2Key()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> Input2Key"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (bEquippingWeapon2) {
 		ChangeAttackState(EAttackState::Weapon2);
 	}
@@ -248,7 +245,6 @@ void ABattleGroundCharacter::Input2Key()
 
 void ABattleGroundCharacter::InputXKey()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> InputXKey"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
 	if (bEquippingWeapon1 || bEquippingWeapon2) {
 		ChangeAttackState(EAttackState::NoWeapon);
 	}
@@ -284,6 +280,7 @@ void ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 					MultiTrace();
 					InventoryRef->BuildInventory();
 					InventoryRef->BuildGroundItems();
+					InventoryRef->SetCurrWeightText();
 				}
 
 				UGameplayStatics::PlaySound2D(GetWorld(), PickUpSound);
@@ -294,8 +291,6 @@ void ABattleGroundCharacter::ItemToInventory(AMasterItem* InItem)
 
 void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 999, FColor::Purple, FString::Printf(TEXT("%s >> This iS Call?"), *FDateTime::UtcNow().ToString(TEXT("%H:%M:%S"))), true, FVector2D(1.5f, 1.5f));
-	int a = 1;
 	switch (InAttackState) {
 	case EAttackState::NoWeapon: 
 		{
@@ -379,7 +374,8 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				InventoryRef->EquipHelmetSlot->ItemData = InItem->ItemData;
 			}
 			else {
-				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				AlertAlreadyEquipItem();
+				// TODO: ÀÌ¹Ì Àåºñ ÁßÀÔ´Ï´Ù.
 				return false;
 			}
 		}
@@ -393,7 +389,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				InventoryRef->EquipUpperWearSlot->ItemData = InItem->ItemData;
 			}
 			else {
-				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				AlertAlreadyEquipItem();
 				return false;
 			}
 		}
@@ -407,7 +403,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				InventoryRef->EquipLowerWearSlot->ItemData = InItem->ItemData;
 			}
 			else {
-				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				AlertAlreadyEquipItem();
 				return false;
 			}
 		}
@@ -421,7 +417,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				InventoryRef->EquipShoesSlot->ItemData = InItem->ItemData;
 			}
 			else {
-				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				AlertAlreadyEquipItem();
 				return false;
 			}
 		}
@@ -444,7 +440,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 				InventoryRef->GunSlot2->GunName->SetText(FText::FromString(InItem->ItemData.Name));
 			}
 			else {
-				// TODO: ¹«±â ½½·ÔÀÌ ²ËÃ¡½À´Ï´Ù.
+				AlertAlreadyEquipItem();
 				return false;
 			}
 		}
@@ -559,6 +555,7 @@ void ABattleGroundCharacter::DropItem(FItemData InItem, int32 InGunSlotIdx)
 			}
 		break;
 	}
+	InventoryRef->SetCurrWeightText();
 
 	FVector SpawnPos = GetDropItemSpawnPos();
 
@@ -622,7 +619,7 @@ void ABattleGroundCharacter::TraceItem()
 	bool bHit = UKismetSystemLibrary::CapsuleTraceSingle(GetWorld(),
 														Start, 
 														End, 
-														50, 
+														25, 
 														50, 
 														UEngineTypes::ConvertToTraceType(ECollisionChannel::ECC_GameTraceChannel7),
 														false,

@@ -119,7 +119,7 @@ public:
 	class UInteractWidget* InteractWidget;
 
 	UPROPERTY(EditAnywhere)
-	float TraceMaxDistance = 500;
+	float TraceMaxDistance = 420;
 
 	void SetOverlapItemCount(int32 InOverlapItemCnt);
 	FORCEINLINE int32 GetOverlapItemCount() { return OverlapItemCnt; }
@@ -150,6 +150,9 @@ public:
 	UPROPERTY(BlueprintReadWrite)
 	TArray<class AMasterItem*> MultiItemRefs;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void AlertAlreadyEquipItem();
+
 public: // **** 장비 아이템 착용 여부 ****//
 	
 	UPROPERTY(BlueprintReadWrite)
@@ -172,9 +175,11 @@ public: // **** 장비 아이템 착용 여부 ****//
 
 	UPROPERTY(BlueprintReadWrite)
 	bool IsArmed = false;
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetInvenItemWeight();
 private:
 	bool AddItem(AMasterItem* InItem);
-	int32 GetInvenItemWeight();
 	int32 FindIndex(AMasterItem* InItem);
 	void IncreaseAmount(AMasterItem* InItem, int32 Index);
 	bool HasItemOnce(AMasterItem* InItem);

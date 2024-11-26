@@ -31,7 +31,7 @@ AMasterItem::AMasterItem()
 
 	SphereCollComp = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollComp"));
 	SphereCollComp->SetupAttachment(RootComp);
-	SphereCollComp->SetSphereRadius(250);
+	SphereCollComp->SetSphereRadius(160);
 	SphereCollComp->SetCollisionProfileName(TEXT("ItemCheckRange"));
 
 	/*static ConstructorHelpers::FClassFinder<UInteractWidget> tempInteractWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Inventory/WB_InteractWidget.WB_InteractWidget_C'"));
