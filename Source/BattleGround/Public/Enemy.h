@@ -30,12 +30,12 @@ public:
 	class UParticleSystem* damageEffect;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FullHp = 5;
+	float FullHp = 1000;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		float currHP = 0;
 
 	UPROPERTY(EditAnywhere)
-		float power = 1;
+		float power = 100;
 
 	//¸ðµ¨¸µ
 	/*UPROPERTY()

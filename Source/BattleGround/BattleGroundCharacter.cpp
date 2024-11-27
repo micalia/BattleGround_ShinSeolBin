@@ -316,6 +316,8 @@ void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
 
 			IsArmed = false;
 			CurrAttackState = EAttackState::NoWeapon;
+
+			CrossHairUI->SetVisibility(ESlateVisibility::Collapsed);
 		}
 		break;
 		case EAttackState::Weapon1:
@@ -333,6 +335,8 @@ void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
 				IsArmed = true;
 				CurrAttackState = EAttackState::Weapon1;
 			}), DrawGunDelayTime, false);
+
+			CrossHairUI->SetVisibility(ESlateVisibility::Visible);
 		}
 		break;
 		case EAttackState::Weapon2:
@@ -350,6 +354,8 @@ void ABattleGroundCharacter::ChangeAttackState(EAttackState InAttackState)
 				IsArmed = true;
 				CurrAttackState = EAttackState::Weapon2;
 			}), DrawGunDelayTime, false);
+
+			CrossHairUI->SetVisibility(ESlateVisibility::Visible);
 		}
 		break;
 	}
@@ -375,7 +381,6 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			}
 			else {
 				AlertAlreadyEquipItem();
-				// TODO: 이미 장비 중입니다.
 				return false;
 			}
 		}
@@ -427,6 +432,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			if (!bEquippingWeapon1)
 			{
 				ToggleBoolEquippingItem(bEquippingWeapon1);
+				Weapon1Data = InItem->ItemData;
 				SM_Weapon1->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon1->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 				InventoryRef->GunSlot1->ItemData = InItem->ItemData;
@@ -434,6 +440,7 @@ bool ABattleGroundCharacter::AddItem(AMasterItem* InItem)
 			}
 			else if (!bEquippingWeapon2) {
 				ToggleBoolEquippingItem(bEquippingWeapon2);
+				Weapon2Data = InItem->ItemData;
 				SM_Weapon2->SetStaticMesh(InItem->ItemData.Mesh);
 				SM_Weapon2->SetRelativeScale3D(InItem->ItemData.StaticMeshScale);
 				InventoryRef->GunSlot2->ItemData = InItem->ItemData;

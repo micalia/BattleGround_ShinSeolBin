@@ -77,6 +77,11 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* SM_Weapon2;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FItemData Weapon1Data;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FItemData Weapon2Data;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USkeletalMeshComponent* SK_UpperWear;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -103,9 +108,12 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AMasterItem> MasterItemFactory;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UUserWidget* CrossHairUI;
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float FullHp = 50;
+	float FullHp = 1000;
 	UPROPERTY(BlueprintReadWrite)
 	float currHp = 0;
 
@@ -168,6 +176,7 @@ public: // **** 장비 아이템 착용 여부 ****//
 	UPROPERTY(BlueprintReadWrite)
 	bool bEquippingWeapon2 = false;
 
+	UPROPERTY(BlueprintReadOnly)
 	EAttackState CurrAttackState = EAttackState::NoWeapon;
 	void ChangeAttackState(EAttackState InAttackState);
 

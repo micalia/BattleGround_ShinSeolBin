@@ -46,17 +46,20 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Category"))
 	EItemEnum Category;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int32 WeaponPower = 0;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	class USoundBase* Sound;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	EWeaponType WeaponType = EWeaponType::NotWeapon;
+	
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="Amount", MakeStructureDefaultValue="0"))
 	int32 Amount = 1;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="IsStackAble", MakeStructureDefaultValue="False"))
 	bool IsStackAble;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="ItemClass", MakeStructureDefaultValue="None"))
-	TObjectPtr<UClass> ItemClass;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta=(DisplayName="IsEquip", MakeStructureDefaultValue="False"))
-	bool IsEquip;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector StaticMeshScale = FVector(1);
@@ -67,8 +70,7 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class USkeletalMesh* SkeletalMesh;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
-	EWeaponType WeaponType = EWeaponType::NotWeapon;
+
 };
 
 
