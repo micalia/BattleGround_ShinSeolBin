@@ -72,7 +72,7 @@ FRotator currRot;
 FRotator destRot;
 
 //µø¿€
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	EEnemyState currState = EEnemyState::Move;
 
 	void ChangeState(EEnemyState state);

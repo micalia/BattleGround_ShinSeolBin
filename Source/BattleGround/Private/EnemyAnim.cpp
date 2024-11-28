@@ -12,6 +12,7 @@
 #include <Camera/CameraComponent.h>
 #include <GameFramework/PlayerController.h>
 #include <UMG/Public/Blueprint/WidgetBlueprintLibrary.h>
+#include "EnemyFSM.h"
 
 void UEnemyAnim::NativeBeginPlay()
 {
@@ -31,6 +32,9 @@ void UEnemyAnim::AnimNotify_Shot(){
 	FCollisionQueryParams paramShot;
 	paramShot.AddIgnoredActor(me);
 
+	if (me->fsm == nullptr) {
+		me->fsm = me->GetComponentByClass<UEnemyFSM>();
+	}
 	if (me->fsm == nullptr) return;
 	bool bDamage = GetWorld()->LineTraceSingleByChannel(
 		hitInfoShot,
@@ -38,7 +42,7 @@ void UEnemyAnim::AnimNotify_Shot(){
 		me->fsm->NewEndPos,
 		ECC_Visibility,
 		paramShot);
-
+		DrawDebugLine(GetWorld(), me->fsm->startPos, me->fsm->NewEndPos, FColor::Blue);
 		if (bDamage) {
 			UE_LOG(LogTemp, Warning, TEXT("hitInfoShot.GetActor() : %s"), *hitInfoShot.GetActor()->GetName())
 				if (hitInfoShot.GetActor()->GetName().Contains(TEXT("Helmet"))) {

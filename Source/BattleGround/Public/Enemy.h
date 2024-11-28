@@ -41,7 +41,7 @@ public:
 	/*UPROPERTY()
 	ABattleGroundCharacter* */
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UEnemyFSM* fsm;
 
 	//사격 포인트 (라인트레이스 방식)

@@ -47,7 +47,7 @@ void UEnemyFSM::BeginPlay()
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	if(ai == nullptr) return;
 	if (gameMode->bEndGame == true) {
 		ChangeState(EEnemyState::Idle);
@@ -83,14 +83,6 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UEnemyFSM::ChangeState(EEnemyState state)
 {
-	/*UEnum* enumPtr = FindObject<UEnum>(ANY_PACKAGE, TEXT("EEnemyState"), true);
-	if (enumPtr != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("%s -----> %s"),
-			*enumPtr->GetNameStringByIndex((int32)currState),
-			*enumPtr->GetNameStringByIndex((int32)state));
-	}*/
-
 	currState = state;
 	anim->animState = state;
 
@@ -132,15 +124,14 @@ void UEnemyFSM::UpdateIdle()
 			ChangeState(EEnemyState::Attack);
 		}
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Idle!"))
 }
 
 void UEnemyFSM::UpdateMove()
 {
 
-	if (IsWaitComplete(moveDelayTime)) {
+	/*if (IsWaitComplete(moveDelayTime)) {
 		ChangeState(EEnemyState::Rotate);
-	}
+	}*/
 
 	bTrace = IsTargetTrace();
 
@@ -150,12 +141,10 @@ void UEnemyFSM::UpdateMove()
 			ChangeState(EEnemyState::Attack);
 		}
 	}
-	else
+	/*else
 	{
 		EPathFollowingRequestResult::Type re = ai->MoveToActor(target);
-	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Move!"))
+	}*/
 }
 
 void UEnemyFSM::UpdateRotate()
@@ -181,7 +170,6 @@ void UEnemyFSM::UpdateRotate()
 	{
 		EPathFollowingRequestResult::Type re = ai->MoveToActor(target);
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Rotate!"))
 }
 
 void UEnemyFSM::UpdateAttack()
@@ -194,7 +182,7 @@ void UEnemyFSM::UpdateAttack()
 
 		bAttack = true;
 		startPos = me->shootPos->GetComponentLocation();
-		//End (카메라위치 + 카메라 앞방향 * 거리)
+		
 		int32 ranVal = UKismetMathLibrary::RandomIntegerInRange(1, 3);
 		if (!checkEnemy) {
 			switch (ranVal)
@@ -260,8 +248,6 @@ void UEnemyFSM::UpdateAttack()
 	if (!bTrace) {
 		ChangeState(EEnemyState::Idle);
 	}
-
-	//UE_LOG(LogTemp, Warning, TEXT("Attack!"))
 }
 
 void UEnemyFSM::UpdateDie()
@@ -272,7 +258,6 @@ void UEnemyFSM::UpdateDie()
 			me->Destroy();
 		}
 	}
-	//UE_LOG(LogTemp, Warning, TEXT("Die!"))
 }
 
 
@@ -319,8 +304,7 @@ bool UEnemyFSM::IsTargetTrace()
 			if (hitInfo.GetActor()->GetName().Contains(TEXT("Enemy"))) {
 				return true;
 			}
-		}
-		
+		}	
 	}
 	
 	return false;

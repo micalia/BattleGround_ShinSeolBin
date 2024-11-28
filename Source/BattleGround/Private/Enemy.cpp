@@ -100,6 +100,10 @@ void AEnemy::BeginPlay()
 	currHP = FullHp;
 
 	enemyHpUI = Cast<UUI_EnemyHP>(enemyHPwidget->GetWidget());
+
+	if (fsm == nullptr) {
+		fsm = GetComponentByClass<UEnemyFSM>();
+	}
 	//GetWorldTimerManager().SetTimer(TimerHandle_UpdateWidgetRotation, this, &AEnemy::UpdateWidgetRotation, 0.1f, true);
 }
 

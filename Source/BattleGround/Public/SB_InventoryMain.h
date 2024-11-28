@@ -27,7 +27,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void BuildGroundItems();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void SetCurrWeightText();
 
 public:
