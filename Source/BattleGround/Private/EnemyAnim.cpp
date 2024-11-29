@@ -42,10 +42,11 @@ void UEnemyAnim::AnimNotify_Shot(){
 		me->fsm->NewEndPos,
 		ECC_Visibility,
 		paramShot);
-		DrawDebugLine(GetWorld(), me->fsm->startPos, me->fsm->NewEndPos, FColor::Blue);
+		DrawDebugLine(GetWorld(), me->fsm->startPos, me->fsm->NewEndPos, FColor::Blue, false, 3, 0, 3);
 		if (bDamage) {
 			UE_LOG(LogTemp, Warning, TEXT("hitInfoShot.GetActor() : %s"), *hitInfoShot.GetActor()->GetName())
-				if (hitInfoShot.GetActor()->GetName().Contains(TEXT("Helmet"))) {
+				auto HitCompName = hitInfoShot.GetComponent()->GetName();
+				if (HitCompName.Contains(TEXT("Helmet"))) {
 					gameMode->PlayHitHelmetSound();
 
 					auto NewRotation = hitInfoShot.ImpactNormal.Rotation();

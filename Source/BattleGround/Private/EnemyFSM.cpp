@@ -183,7 +183,7 @@ void UEnemyFSM::UpdateAttack()
 		bAttack = true;
 		startPos = me->shootPos->GetComponentLocation();
 		
-		int32 ranVal = UKismetMathLibrary::RandomIntegerInRange(1, 3);
+		int32 ranVal = UKismetMathLibrary::RandomIntegerInRange(1, 2);
 		if (!checkEnemy) {
 			switch (ranVal)
 			{
@@ -196,16 +196,16 @@ void UEnemyFSM::UpdateAttack()
 			}
 			break;
 			case 2: {
-				randPos = target->GetMesh()->GetSocketLocation(TEXT("spine_05")) + target->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-attackErrorRange, attackErrorRange);
+				randPos = target->GetMesh()->GetSocketLocation(TEXT("spine_03")) + target->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-attackErrorRange, attackErrorRange);
 				endPos = randPos;
 
 			}
 				  break;
-			case 3: {
+			/*case 3: {
 				randPos = target->GetMesh()->GetSocketLocation(TEXT("pelvis")) + target->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-attackErrorRange, attackErrorRange);
 				endPos = randPos;
 			}
-				  break;
+				  break;*/
 			}
 		}
 		else {
@@ -225,11 +225,11 @@ void UEnemyFSM::UpdateAttack()
 
 			}
 				  break;
-			case 3: {
-				randPos = target->GetMesh()->GetSocketLocation(TEXT("Hips")) + target->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-attackErrorRange, attackErrorRange);
-				endPos = randPos;
-			}
-				  break;
+				  /*	case 3: {
+						  randPos = target->GetMesh()->GetSocketLocation(TEXT("Hips")) + target->GetActorRightVector() * UKismetMathLibrary::RandomFloatInRange(-attackErrorRange, attackErrorRange);
+						  endPos = randPos;
+					  }
+							break;*/
 			}
 		}
 
@@ -293,7 +293,7 @@ bool UEnemyFSM::IsTargetTrace()
 			target->GetActorLocation(),
 			ECC_Visibility,
 			param);
-
+		
 		if (bHit)
 		{
 			if (hitInfo.GetActor()->GetName().Contains(TEXT("Person")))
