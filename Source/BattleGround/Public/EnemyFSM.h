@@ -83,11 +83,6 @@ FRotator destRot;
 	void UpdateAttack();
 	void UpdateDie();
 
-
-	/*FHitResult hitInfoShot;
-	FCollisionQueryParams paramShot;
-	bool LineTraceAttack();*/
-
 	bool IsWaitComplete(float delayTime);
 
 	bool bAttack;

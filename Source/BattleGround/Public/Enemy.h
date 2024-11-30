@@ -37,10 +37,6 @@ public:
 	UPROPERTY(EditAnywhere)
 		float power = 100;
 
-	//¸ðµ¨¸µ
-	/*UPROPERTY()
-	ABattleGroundCharacter* */
-
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	class UEnemyFSM* fsm;
 
@@ -57,8 +53,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	float checkEnemyCollRadius = 500;
 	void CheckCreatureCollision();
-	/*UPROPERTY(EditAnywhere)
-	class USphereComponent* checkEnemyColl;*/
 
 	UFUNCTION(BlueprintCallable)
 	float Damaged(float damage);

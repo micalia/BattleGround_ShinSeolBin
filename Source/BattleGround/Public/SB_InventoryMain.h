@@ -13,14 +13,8 @@ UCLASS()
 class BATTLEGROUND_API USB_InventoryMain : public UUserWidget
 {
 	GENERATED_BODY()
-	
-public:
-	USB_InventoryMain(const FObjectInitializer &ObjectInitializer);
-
-	virtual void NativeConstruct();
 
 public:
-
 	UFUNCTION(BlueprintCallable)
 	void BuildInventory();
 

@@ -10,22 +10,6 @@
 #include "SB_GunSlotWidget.h"
 #include "Kismet/GameplayStatics.h"
 
-USB_InventoryMain::USB_InventoryMain(const FObjectInitializer& ObjectInitializer):Super(ObjectInitializer)
-{
-	/*ConstructorHelpers::FClassFinder<USB_ItemSlotWidget> tempItemSlot(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UMG/ItemSlot.ItemSlot_C'"));
-	if (tempItemSlot.Succeeded()) {
-		ItemSlotFactory = tempItemSlot.Class;
-	}*/
-}
-
-void USB_InventoryMain::NativeConstruct()
-{
-	Super::NativeConstruct();
-
-	
-	//BuildInventory();
-}
-
 void USB_InventoryMain::BuildInventory()
 {
 	if (Player == nullptr) {
@@ -33,23 +17,14 @@ void USB_InventoryMain::BuildInventory()
 	}
 	ItemScrollbox->ClearChildren();
 	for (int i = 0; i < Player->ItemArr.Num(); i++) {
-		switch (Player->ItemArr[i].Category)
+		if (Player->ItemArr[i].Category == EItemEnum::Consumeables)
 		{
-		case EItemEnum::Weapon:
-			break; 
-		case EItemEnum::Helmet:
-			EquipHelmetSlot->ItemData = Player->ItemArr[i];
-			EquipHelmetSlot->TPRef = Player;
-			EquipHelmetSlot->Index = i;
-			break;
-		case EItemEnum::Consumeables:
 			UClass* WidgetClass = LoadClass<UUserWidget>(nullptr, TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UMG/ItemSlot.ItemSlot_C'"));
 			USB_ItemSlotWidget* ItemSlot = CreateWidget<USB_ItemSlotWidget>(GetWorld(), WidgetClass);
 			ItemSlot->ItemData = Player->ItemArr[i];
 			ItemSlot->Index = i;
 			ItemSlot->TPC = Player;
 			ItemScrollbox->AddChild(Cast<UWidget>(ItemSlot));
-			break;
 		}
 	}
 }

@@ -18,7 +18,6 @@ public:
 
 	void UpdateCurrHP(float currHP, float maxHP);
 
-
 	UPROPERTY(meta=(BindWidget))
 	class UTextBlock* enemyHP;
 };

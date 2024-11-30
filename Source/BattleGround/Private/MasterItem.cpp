@@ -34,25 +34,6 @@ AMasterItem::AMasterItem()
 	SphereCollComp->SetSphereRadius(160);
 	SphereCollComp->SetCollisionProfileName(TEXT("ItemCheckRange"));
 
-	/*static ConstructorHelpers::FClassFinder<UInteractWidget> tempInteractWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Inventory/WB_InteractWidget.WB_InteractWidget_C'"));
-	if (tempInteractWidget.Succeeded()) {
-		InteractWidgetFactory = tempInteractWidget.Class;
-	}
-
-	WidgetComp = CreateDefaultSubobject<UWidgetComponent>(TEXT("WidgetComp"));
-	WidgetComp->SetupAttachment(RootComp);
-	WidgetComp->SetWidgetClass(InteractWidgetFactory);
-	WidgetComp->SetWidgetSpace(EWidgetSpace::World);
-
-	static ConstructorHelpers::FObjectFinder<UMaterialInterface> tempWorld3DPassThrough(TEXT("/Script/Engine.Material'/Engine/EngineMaterials/Widget3DPassThrough.Widget3DPassThrough'"));
-	if (tempWorld3DPassThrough.Succeeded())
-	{
-		World3DPassThrough = tempWorld3DPassThrough.Object;
-	}
-
-	WidgetComp->SetMaterial(0, World3DPassThrough);
-	WidgetComp->SetWorldScale3D(FVector(0.11));
-	WidgetComp->SetDrawSize(FVector2D(1300, 500));*/
 }
 
 // Called when the game starts or when spawned
@@ -79,7 +60,6 @@ void AMasterItem::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	if (ABattleGroundCharacter* Player = Cast<ABattleGroundCharacter>(OtherActor)) {
 		if (Player->IsLocallyControlled()) {
 			OutlineDynamicMat->SetScalarParameterValue(TEXT("Thickness"), 2);
-			//Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(1);
 			Player->SetOverlapItemCount(1);
 		}
 	}
@@ -90,7 +70,6 @@ void AMasterItem::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	if (ABattleGroundCharacter* Player = Cast<ABattleGroundCharacter>(OtherActor)) {
 		if (Player->IsLocallyControlled()) {
 			OutlineDynamicMat->SetScalarParameterValue(TEXT("Thickness"), 0);
-			//Player->InteractWidget->ItemNameCanvas->SetRenderOpacity(0);
 			Player->SetOverlapItemCount(-1);
 		}
 	}

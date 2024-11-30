@@ -18,6 +18,9 @@ void UEnemyAnim::NativeBeginPlay()
 {
 	me = Cast<AEnemy>(TryGetPawnOwner());
 	gameMode = Cast<AInGameMode>(GetWorld()->GetAuthGameMode());
+	if (me->fsm == nullptr) {
+		me->fsm = me->GetComponentByClass<UEnemyFSM>();
+	}
 }
 
 void UEnemyAnim::AnimNotify_Shot(){
@@ -27,15 +30,10 @@ void UEnemyAnim::AnimNotify_Shot(){
 	FRotator shotPosRot = FRotator(90, 0, 0);
 	me->particleComp->SetActive(true);
 
-	//if (anim->bShotTiming == true && bAttack == true) {
 	FHitResult hitInfoShot;
 	FCollisionQueryParams paramShot;
 	paramShot.AddIgnoredActor(me);
 
-	if (me->fsm == nullptr) {
-		me->fsm = me->GetComponentByClass<UEnemyFSM>();
-	}
-	if (me->fsm == nullptr) return;
 	bool bDamage = GetWorld()->LineTraceSingleByChannel(
 		hitInfoShot,
 		me->fsm->startPos,
@@ -44,7 +42,6 @@ void UEnemyAnim::AnimNotify_Shot(){
 		paramShot);
 		DrawDebugLine(GetWorld(), me->fsm->startPos, me->fsm->NewEndPos, FColor::Blue, false, 3, 0, 3);
 		if (bDamage) {
-			UE_LOG(LogTemp, Warning, TEXT("hitInfoShot.GetActor() : %s"), *hitInfoShot.GetActor()->GetName())
 				auto HitCompName = hitInfoShot.GetComponent()->GetName();
 				if (HitCompName.Contains(TEXT("Helmet"))) {
 					gameMode->PlayHitHelmetSound();
@@ -72,34 +69,6 @@ void UEnemyAnim::AnimNotify_Shot(){
 					
 					if (gameMode != NULL && gameMode->bLose == false) {
 						gameMode->PlayerDie();
-						//gameMode->bEndGame = true;
-
-						//TArray<UUserWidget*> FoundWidgets;
-						//UWidgetBlueprintLibrary::GetAllWidgetsOfClass(GetWorld(), FoundWidgets, UUserWidget::StaticClass());
-						//for (int32 i = 0; i<FoundWidgets.Num(); i++)
-						//{
-						//	if (FoundWidgets[i]->GetName().Contains(TEXT("Player_HP"))) {
-						//		FoundWidgets[i]->SetVisibility(ESlateVisibility::Collapsed);
-						//	}
-						//	if (FoundWidgets[i]->GetName().Contains(TEXT("TopUI"))) {
-						//		FoundWidgets[i]->SetVisibility(ESlateVisibility::Collapsed);
-						//	}
-
-						//}
-
-						//APlayerController* controller = GetWorld()->GetFirstPlayerController();
-						//player->DisableInput(controller);
-						//gameMode->originLoseCameraTransform = player->GetFollowCamera()->GetRelativeTransform();
-
-						////FTransform 자료형 빼기 식 성공
-						//gameMode->moveLoseCameraTransform = FTransform(
-						//	gameMode->SetRotation,
-						//	gameMode->originLoseCameraTransform.GetLocation() + gameMode->SetLocation,
-						//	FVector(1)
-						//);
-						//UE_LOG(LogTemp, Warning, TEXT("originTransform : %s / moveTransform : %s"), *gameMode->originLoseCameraTransform.ToString(),*gameMode->moveLoseCameraTransform.ToString())
-						//gameMode->bLose = true;
-						//me->fsm->ChangeState(EEnemyState::Idle);
 					}
 				}
 
@@ -118,7 +87,6 @@ void UEnemyAnim::AnimNotify_Shot(){
 					bloodEffect->SetWorldRotation(NewRotation);
 
 					if (enemyHP <= 0) {
-						//UE_LOG(LogTemp, Warning, TEXT("hp: %d"), enemyHP)
 						me->fsm->target = me->fsm->playerPointer;
 					}
 
@@ -129,5 +97,4 @@ void UEnemyAnim::AnimNotify_Shot(){
 			}
 
 		}
-
 }

@@ -19,13 +19,3 @@ void USB_GunSlotWidget::SetDefaulImage()
 		GunImage->SetBrushFromTexture(noWeaponTexture);
 	}
 }
-
-//void USB_GunSlotWidget::NotEquipState()
-//{
-//	/*FSlateBrush NoneBlush;
-//	GunImage->SetBrush(NoneBlush);*/
-//	GunName->SetText(FText::FromString(TEXT("")));
-//	
-//	FItemData NoneItem;
-//	ItemData = NoneItem;
-//}

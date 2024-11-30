@@ -58,8 +58,6 @@ public:
 	UPROPERTY()
 	class ABattleGroundCharacter* Player;
 
-	/*UPROPERTY(EditAnywhere)
-	FTransform setLoseCameraTranform;*/
 	UPROPERTY(EditAnywhere)
 	FVector SetLocation = FVector(-80,0, 370);
 	UPROPERTY(EditAnywhere)

@@ -30,7 +30,4 @@ public:
 
 	UPROPERTY(BlueprintReadWrite)
 	int32 Index;
-
-	//UPROPERTY(BlueprintReadWrite)
-	//class ABattleGroundCharacter* TPRef;
 };

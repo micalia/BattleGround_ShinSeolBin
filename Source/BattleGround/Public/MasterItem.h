@@ -70,7 +70,6 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	class USkeletalMesh* SkeletalMesh;
 
-
 };
 
 
@@ -108,15 +107,6 @@ public:
 
 	UPROPERTY()
 	class UMaterialInstanceDynamic* OutlineDynamicMat;
-
-	/*UPROPERTY(EditAnywhere)
-	class UWidgetComponent* WidgetComp;
-
-	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UInteractWidget> InteractWidgetFactory;
-
-	UPROPERTY(EditAnywhere)
-	class UMaterialInterface* World3DPassThrough;*/
 
 public:
 UFUNCTION()
